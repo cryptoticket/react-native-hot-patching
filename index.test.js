@@ -113,7 +113,8 @@ describe('React Native Hot Patching', () => {
 				get: jest.fn(() => ({
 					data: {
 						version: '1.0.1',
-						is_update_required: true
+						is_update_required: true,
+						apply_from_version: '1.0.0'
 					}
 				}))
 			}));
@@ -205,16 +206,44 @@ describe('React Native Hot Patching', () => {
 	});
 
 	describe('isActivationRequired()', () => {
-		it('should return true if remote bundle is required to update and update is patch', () => {
-			expect(RNHotPatching.isActivationRequired('1.0.0', {is_update_required: true, version: '1.0.1'})).toEqual(true);
+		it('should return true if remote bundle is required and current app version is in valid range', () => {
+			expect(RNHotPatching.isActivationRequired('1.0.0', {
+				is_update_required: true, 
+				version: '1.0.1',
+				apply_from_version: '1.0.0'
+			})).toEqual(true);
 		});
 
-		it('should return false if remote bundle is NOT required to update and update is patch', () => {
-			expect(RNHotPatching.isActivationRequired('1.0.0', {is_update_required: false, version: '1.0.1'})).toEqual(false);
+		it('should return false if remote bundle is not required and current app version is in valid range', () => {
+			expect(RNHotPatching.isActivationRequired('1.0.0', {
+				is_update_required: false, 
+				version: '1.0.1',
+				apply_from_version: '1.0.0'
+			})).toEqual(false);
 		});
 
-		it('should return false if remote bundle is required to update and update is NOT patch', () => {
-			expect(RNHotPatching.isActivationRequired('1.0.0', {is_update_required: true, version: '1.1.0'})).toEqual(false);
+		it('should return false if remote bundle is required and remote bundle apply_from_version field is invalid', () => {
+			expect(RNHotPatching.isActivationRequired('1.0.0', {
+				is_update_required: true, 
+				version: '1.0.1',
+				apply_from_version: 'INVALID'
+			})).toEqual(false);
+		});
+
+		it('should return false if remote bundle is required and app version < remote bundle apply_from_version', () => {
+			expect(RNHotPatching.isActivationRequired('1.0.0', {
+				is_update_required: true, 
+				version: '1.0.2',
+				apply_from_version: '1.0.1'
+			})).toEqual(false);
+		});
+
+		it('should return false if remote bundle is required and app version >= remote bundle version', () => {
+			expect(RNHotPatching.isActivationRequired('1.0.2', {
+				is_update_required: true, 
+				version: '1.0.2',
+				apply_from_version: '1.0.1'
+			})).toEqual(false);
 		});
 	});
 

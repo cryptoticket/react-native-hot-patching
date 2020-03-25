@@ -74,22 +74,20 @@ async function init(options = {}) {
  * Checks whether plugin should download a bundle and set it as active.
  * Returns true only if ALL of the following conditions are met:
  * - remote bundle's is_update_required property is true
- * - patch update, ex: currentAppVersion: 1.0.0, remoteBundleVersion: 1.0.1
- * NOTICE: we only update to patch versions because native changes are not applied to JS bundle file.
- * Consider the following scenarios:
- * - user installs app version 1.0.0 and disables device
- * - meanwhile version 1.0.1 with native changes appears in the app store
- * - then we release version 1.0.2 with is_update_required that should be hot patched
- * When user turns off the device, app with version 1.0.0 downloads bundle with version 1.0.2(with native changes from 1.0.1) and app crashes.
- * So we update only patch versions.
+ * - app version >= remote bundle's apply_from_version property
+ * - app version < remote bundle's version property
+ * NOTICE: we need bundle's apply_from_version property because only none native bundle updates will be applied.
+ * So you should track that active bundle does not have any native code changes.
  * @param {string} currentAppVersion current app version
  * @param {Object} remoteBundleData remote bundle data
  * @return {boolean} whether bundle should be downloaded and activated
  */
 function isActivationRequired(currentAppVersion, remoteBundleData) {
 	const isRemoteBundleUpdateRequired = remoteBundleData.is_update_required;
-	const isPatchUpdate = semver.inc(currentAppVersion, 'patch') === remoteBundleData.version;
-	return isRemoteBundleUpdateRequired && isPatchUpdate;
+	// if "apply_from_version" exists and is in valid semver format then check that it is >= than "apply_from_version" field
+	const isGreaterThanMin = semver.valid(remoteBundleData.apply_from_version) ? semver.gte(currentAppVersion, remoteBundleData.apply_from_version) : false;
+	const isLessThanMax = semver.lt(currentAppVersion, remoteBundleData.version);
+	return isRemoteBundleUpdateRequired && isGreaterThanMin && isLessThanMax;
 };
 
 /**

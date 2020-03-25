@@ -27,37 +27,24 @@ RNHotPatching.init({
 # What is going on in background
 
 ## Case 1
-If current app version (from package.json) is `1.0.0` and there is an active bundle(on the server side) with version `1.0.1` and `is_update_required` field set to `true` then:
+If current app version (from package.json) is `1.0.0` and there is an active bundle(on the server side) with version `1.0.1`, `is_update_required` field set to `true` and `apply_from_version` is set to `1.0.0` then:
 - JS bundle with version `1.0.1` will be downloaded and saved on the device
 - JS bundle with version `1.0.1` will be set as active
 - when user opens app the next time then version `1.0.1` will be opened
 
 ## Case 2
+If current app version (from package.json) is `1.0.0` and there is an active bundle(on the server side) with version `1.0.2`, `is_update_required` field set to `true` and `apply_from_version` is set to `1.0.1` then:
+- JS bundle is NOT downloaded because current app version `1.0.0` < minimum required version `1.0.1` from `apply_from_version` field
+
+## Case 3
 If current app version is `1.0.1`(updated via hot patching, "real" version in package.json is `1.0.0`) and app is updated to version `1.0.1` via app store then:
 - active bundle is set to `null`
 - when user opens app the next time then version `1.0.1` from the app store will be opened
 
-## Case 3
+## Case 4
 If current app version is `1.0.2`(from package.json) and there is a bundle with version `1.0.1` still saved then:
 - JS bundle with version `1.0.1` is unregistered and deleted physically
 
-## Case 4
-
-If current app version (from package.json) is `1.0.0` and there is an active bundle(on the server side) with version `1.0.2` and `is_update_required` field set to `true` then:
-- JS bundle is NOT downloaded
-
-So only patch updates can be applied. Example: 1.0.0 => 1.0.1, not 1.0.0 => 1.1.0. Why it happens:
-- imagine we have a user who installs your app with version `1.0.0` and disables device
-- meanwhile you publish version `1.0.1` **with native changes** to the app store
-- then you find a critical bug in `1.0.1` and upload `1.0.2` via hot patching
-- then user with version `1.0.0` enables device
-
-So if user installs bundle with version `1.0.2` (with native changes from `1.0.1`) to his app with version `1.0.0` then the app will crash. That is why only patch updates are permitted and user scenario would be:
-- user with version `1.0.0` enables device
-- user installs version `1.0.1` with native changes from the app store (`1.0.2` is still on the app store review)
-- bundle with version `1.0.2` is downloaded and app works as expected
-
-Please be careful, your hot patching JS bundles should not contain any native code changes.
 
 # Methods
 
@@ -94,14 +81,15 @@ RNHotPatching.init({
 ### isActivationRequired(currentAppVersion: string, remoteBundleData: Object)
 **currentAppVersion**: current app version (from `package.json` or previously downloaded bundle)
 
-**remoteBundleData**: remove bundle data object from `rn-version-admin`. Example:
+**remoteBundleData**: remote bundle data object from `rn-version-admin`. Example:
 ```
 {
     "_id": "5e599743ee4d7e37ed0d0254",
     "platform": "android",
     "storage": "file",
-    "version": "1.0.0", // required
+    "version": "1.0.1", // required
     "is_update_required": false, // required
+    "apply_from_version": "1.0.0", // required
     "url": "http://localhost:3000/static/bundles/1.0.0/android.bundle",
     "desc": "test",
     "created_at": "2020-02-28T22:42:12.005Z",
@@ -111,7 +99,7 @@ RNHotPatching.init({
 
 Checks whether bundle should be downloaded from the remote server and set as active. Returns true only when:
 - `remoteBundleData.is_update_required` is `true`
-- update is patch(current app version is `1.0.0` and remote bundle version is `1.0.1`)
+- `remoteBundleData.apply_from_version` <= current app version < `remoteBundleData.version`
 
 In most cases you should not use this method directly as `init()` handles everything out-of-the-box.
 
@@ -121,7 +109,7 @@ import RNHotPatching from '@cryptoticket/react-native-hot-patching';
 import { version } from './package.json';
 
 const appVersion = RNHotPatching.getCurrentAppVersion(version);
-const isActivationRequired = RNHotPatching.isActivationRequired(appVersion, {is_update_required: true, version: '1.0.0'});
+const isActivationRequired = RNHotPatching.isActivationRequired(appVersion, {is_update_required: true, version: '1.0.1', apply_from_version: '1.0.0'});
 console.log(isActivationRequired); // whether bundle should be downloaded and set as active
 ```
 
@@ -148,7 +136,7 @@ import RNHotPatching from '@cryptoticket/react-native-hot-patching';
 import { version } from './package.json';
 
 try {
-	RNHotPatching.init({
+	await RNHotPatching.init({
 		url: 'https://bundle-update.com', // rn-version-admin address 
 		appVersion: version // app version from package.json
 	});
