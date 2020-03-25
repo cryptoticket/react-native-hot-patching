@@ -18,10 +18,15 @@ npm i @cryptoticket/react-native-hot-patching --save
 import RNHotPatching from '@cryptoticket/react-native-hot-patching';
 import { version } from './package.json';
 
-RNHotPatching.init({
-	url: 'https://bundle-update.com', // rn-version-admin address 
-    appVersion: version // app version from package.json
-});
+try {
+  await RNHotPatching.init({
+      url: 'https://bundle-update.com', // rn-version-admin address 
+      appVersion: version // app version from package.json
+  });
+} catch(err) {
+	console.log('Error on RNHotPatching.init()');
+    console.log(err);
+}
 ```
 
 # What is going on in background
@@ -72,10 +77,15 @@ Example:
 import RNHotPatching from '@cryptoticket/react-native-hot-patching';
 import { version } from './package.json';
 
-RNHotPatching.init({
-	url: 'https://bundle-update.com', // rn-version-admin address 
-    appVersion: version // app version from package.json
-});
+try {
+  await RNHotPatching.init({
+      url: 'https://bundle-update.com', // rn-version-admin address 
+      appVersion: version // app version from package.json
+  });
+} catch(err) {
+	console.log('Error on RNHotPatching.init()');
+    console.log(err);
+}
 ```
 
 ### isActivationRequired(currentAppVersion: string, remoteBundleData: Object)
@@ -128,22 +138,14 @@ RNHotPatching.removeStaleBundles(version);
 
 ### reset()
 
-Removes all downloaded bundles, resets default bundle to the one from the app store and immediately reloads the app. So you can wrap `init()` in `try...catch` and on any error call `reset()` to make sure your app users are able to use the app.
+Removes all downloaded bundles, resets default bundle to the one from the app store and immediately reloads the app.
 
 Example:
 ```
 import RNHotPatching from '@cryptoticket/react-native-hot-patching';
 import { version } from './package.json';
 
-try {
-	await RNHotPatching.init({
-		url: 'https://bundle-update.com', // rn-version-admin address 
-		appVersion: version // app version from package.json
-	});
-} catch(err) {
-	console.error(err);
-    RNHotPatching.reset();
-}
+RNHotPatching.reset();
 ```
 
 ## How to run tests

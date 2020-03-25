@@ -66,7 +66,9 @@ async function init(options = {}) {
 		// remove bundles that are not used anymore
 		await removeStaleBundles(options.appVersion);
 	} catch(err) {
-		console.error(err);
+		console.log('Error on RNHotPatching.init()');
+		console.log(err);
+		throw err;
 	}
 };
 
