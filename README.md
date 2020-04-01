@@ -11,9 +11,10 @@ NOTICE: only JS code can be updated via hot patching. So if you have any native 
 npm i @cryptoticket/react-native-hot-patching --save
 ```
 2. Add [react-native-fs](https://github.com/itinance/react-native-fs) to your app. Used as a peer dependency for bundle downloading.
-3. Add [react-native-dynamic-bundle](https://github.com/mauritsd/react-native-dynamic-bundle) to your app. Used as a peer dependency for bundle management. NOTICE: use latest version from github, not from npm.
-4. Deploy [rn-version-admin](https://github.com/cryptoticket/rn-version-admin) service where you should upload JS bundles.
-5. Init package on app start
+3. Add [react-native-zip-archive](https://github.com/mockingbot/react-native-zip-archive) to your app. Used as a peer dependency for unzipping bundle(to get JS bundle file and app assets).
+4. Add [react-native-dynamic-bundle](https://github.com/mauritsd/react-native-dynamic-bundle) to your app. Used as a peer dependency for bundle management. NOTICE: use latest version from github, not from npm.
+5. Deploy [rn-version-admin](https://github.com/cryptoticket/rn-version-admin) service where you should upload zipped bundles.
+6. Init package on app start
 ```
 import RNHotPatching from '@cryptoticket/react-native-hot-patching';
 import { version } from './package.json';
@@ -33,13 +34,13 @@ try {
 
 ## Case 1
 If current app version (from package.json) is `1.0.0` and there is an active bundle(on the server side) with version `1.0.1`, `is_update_required` field set to `true` and `apply_from_version` is set to `1.0.0` then:
-- JS bundle with version `1.0.1` will be downloaded and saved on the device
-- JS bundle with version `1.0.1` will be set as active
+- bundle with version `1.0.1` will be downloaded and saved on the device
+- bundle with version `1.0.1` will be set as active
 - when user opens app the next time then version `1.0.1` will be opened
 
 ## Case 2
 If current app version (from package.json) is `1.0.0` and there is an active bundle(on the server side) with version `1.0.2`, `is_update_required` field set to `true` and `apply_from_version` is set to `1.0.1` then:
-- JS bundle is NOT downloaded because current app version `1.0.0` < minimum required version `1.0.1` from `apply_from_version` field
+- bundle is NOT downloaded because current app version `1.0.0` < minimum required version `1.0.1` from `apply_from_version` field
 
 ## Case 3
 If current app version is `1.0.1`(updated via hot patching, "real" version in package.json is `1.0.0`) and app is updated to version `1.0.1` via app store then:
@@ -48,7 +49,7 @@ If current app version is `1.0.1`(updated via hot patching, "real" version in pa
 
 ## Case 4
 If current app version is `1.0.2`(from package.json) and there is a bundle with version `1.0.1` still saved then:
-- JS bundle with version `1.0.1` is unregistered and deleted physically
+- bundle with version `1.0.1` is unregistered and deleted physically
 
 
 # Methods
@@ -100,7 +101,7 @@ try {
     "version": "1.0.1", // required
     "is_update_required": false, // required
     "apply_from_version": "1.0.0", // required
-    "url": "http://localhost:3000/static/bundles/1.0.0/android.bundle",
+    "url": "http://localhost:3000/static/bundles/1.0.0/android.bundle.zip",
     "desc": "test",
     "created_at": "2020-02-28T22:42:12.005Z",
     "updated_at": "2020-02-28T22:42:12.005Z"
