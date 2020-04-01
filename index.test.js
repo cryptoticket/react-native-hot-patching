@@ -27,6 +27,9 @@ jest.mock('react-native-fs', () => ({
 	exists: () => true,
 	mkdir: () => {}
 }));
+jest.mock('react-native-zip-archive', () => ({
+	unzip: () => {}
+}));
 
 describe('React Native Hot Patching', () => {
 
@@ -129,11 +132,17 @@ describe('React Native Hot Patching', () => {
 			const mockRNFSMkdir = jest.fn();
 			const mockRNFSDownloadFile = jest.fn(() => ({ promise: jest.fn() }));
 			const mockRNFSExists = jest.fn(() => true);
+			const mockRNFSUnlink = jest.fn();
 			jest.mock('react-native-fs', () => ({
 				exists: mockRNFSExists,
 				mkdir: mockRNFSMkdir,
 				downloadFile: mockRNFSDownloadFile,
+				unlink: mockRNFSUnlink,
 				DocumentDirectoryPath: 'ANY_PATH'
+			}));
+			const mockRNZAUnzip = jest.fn();
+			jest.mock('react-native-zip-archive', () => ({
+				unzip: mockRNZAUnzip
 			}));
 			RNHotPatching = require('./index');
 
@@ -141,9 +150,11 @@ describe('React Native Hot Patching', () => {
 
 			expect(mockRNFSMkdir).toHaveBeenCalledWith('ANY_PATH/bundles/1.0.1', {"NSURLIsExcludedFromBackupKey": true});
 			expect(mockRNFSDownloadFile).toHaveBeenCalledWith({
-				"fromUrl": "https://site.com/static/bundles/1.0.1/android.bundle", 
-				"toFile": "ANY_PATH/bundles/1.0.1/android.bundle"
+				"fromUrl": "https://site.com/static/bundles/1.0.1/android.bundle.zip", 
+				"toFile": "ANY_PATH/bundles/1.0.1/android.bundle.zip"
 			});
+			expect(mockRNZAUnzip).toHaveBeenCalledWith("ANY_PATH/bundles/1.0.1/android.bundle.zip", "ANY_PATH/bundles/1.0.1");
+			expect(mockRNFSUnlink).toHaveBeenCalledWith("ANY_PATH/bundles/1.0.1/android.bundle.zip");
 			expect(mockRNFSExists).toHaveBeenCalledWith("ANY_PATH/bundles/1.0.1/android.bundle");
 			expect(mockRNDBRegisterBundle).toHaveBeenCalledWith("1.0.1", "bundles/1.0.1/android.bundle");
 			expect(mockRNDBSetActiveBundle).toHaveBeenCalledWith("1.0.1");

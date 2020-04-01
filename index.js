@@ -7,6 +7,7 @@ import axios from 'axios';
 import { Platform } from 'react-native';
 import { getActiveBundle, getBundles, registerBundle, reloadBundle, setActiveBundle, unregisterBundle } from 'react-native-dynamic-bundle';
 import RNFS from 'react-native-fs';
+import { unzip } from 'react-native-zip-archive'
 import semver from 'semver';
 
 /**
@@ -47,10 +48,15 @@ async function init(options = {}) {
 			// create bundle folder
 			await RNFS.mkdir(`${RNFS.DocumentDirectoryPath}/bundles/${resp.data.version}`, {NSURLIsExcludedFromBackupKey: true});
 			// download bundle
+			const zippedBundlePath = `${RNFS.DocumentDirectoryPath}/bundles/${resp.data.version}/${Platform.OS}.bundle.zip`;
 			await RNFS.downloadFile({
-			    fromUrl: `${options.url}/static/bundles/${resp.data.version}/${Platform.OS}.bundle`,
-				toFile: `${RNFS.DocumentDirectoryPath}/bundles/${resp.data.version}/${Platform.OS}.bundle`
+			    fromUrl: `${options.url}/static/bundles/${resp.data.version}/${Platform.OS}.bundle.zip`,
+				toFile: zippedBundlePath
 			}).promise;
+			// unzip bundle
+			await unzip(zippedBundlePath, `${RNFS.DocumentDirectoryPath}/bundles/${resp.data.version}`);
+			// delete zipped bundle
+			await RNFS.unlink(zippedBundlePath);
 			// if bundle was downloaded then set it as active
 			const bundleExists = await RNFS.exists(`${RNFS.DocumentDirectoryPath}/bundles/${resp.data.version}/${Platform.OS}.bundle`);
 			if(bundleExists) {
