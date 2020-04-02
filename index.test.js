@@ -117,7 +117,8 @@ describe('React Native Hot Patching', () => {
 					data: {
 						version: '1.0.1',
 						is_update_required: true,
-						apply_from_version: '1.0.0'
+						apply_from_version: '1.0.0',
+						url: 'https://site.com/static/bundles/1.0.1/android.bundle.zip'
 					}
 				}))
 			}));

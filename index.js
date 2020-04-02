@@ -50,7 +50,7 @@ async function init(options = {}) {
 			// download bundle
 			const zippedBundlePath = `${RNFS.DocumentDirectoryPath}/bundles/${resp.data.version}/${Platform.OS}.bundle.zip`;
 			await RNFS.downloadFile({
-			    fromUrl: `${options.url}/static/bundles/${resp.data.version}/${Platform.OS}.bundle.zip`,
+			    fromUrl: resp.data.url,
 				toFile: zippedBundlePath
 			}).promise;
 			// unzip bundle
