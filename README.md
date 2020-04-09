@@ -80,12 +80,12 @@ import { version } from './package.json';
 
 try {
   await RNHotPatching.init({
-      url: 'https://bundle-update.com', // rn-version-admin address 
-      appVersion: version // app version from package.json
+    url: 'https://bundle-update.com', // rn-version-admin address 
+    appVersion: version // app version from package.json
   });
 } catch(err) {
-	console.log('Error on RNHotPatching.init()');
-    console.log(err);
+  console.log('Error on RNHotPatching.init()');
+  console.log(err);
 }
 ```
 
