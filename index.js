@@ -25,7 +25,7 @@ async function getCurrentAppVersion(appVersion) {
 		return appVersion;
 	} else {
 		// return version that is greater
-		return bundleVersion > appVersion ? bundleVersion : appVersion;
+		return semver.gt(bundleVersion, appVersion) ? bundleVersion : appVersion;
 	}
 };
 
@@ -66,7 +66,7 @@ async function init(options = {}) {
 		}
 		// if app was updated from the store and bundle exists then reset bundle to default
 		const bundleVersion = await getActiveBundle();
-		if(bundleVersion && options.appVersion >= bundleVersion) {
+		if(bundleVersion && semver.gte(options.appVersion, bundleVersion)) {
 			setActiveBundle(null);
 		}
 		// remove bundles that are not used anymore
@@ -106,7 +106,7 @@ async function removeStaleBundles(appVersion) {
 	const bundles = await getBundles();
 	for(let version of Object.keys(bundles)) {
 		// if bundle version is less than app version from package.json
-		if(version < appVersion) {
+		if(semver.lt(version, appVersion)) {
 			unregisterBundle(version);
 			// if bundle folder exists then delete it
 			const bundleExists = await RNFS.exists(`${RNFS.DocumentDirectoryPath}/bundles/${version}`);

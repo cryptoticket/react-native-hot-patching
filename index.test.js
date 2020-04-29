@@ -31,7 +31,7 @@ jest.mock('react-native-zip-archive', () => ({
 	unzip: () => {}
 }));
 
-describe('React Native Hot Patching', () => {
+describe('React Native Hot Patching: Unit', () => {
 
 	beforeEach(() => {
 		jest.resetModules();
