@@ -162,10 +162,10 @@ describe('React Native Hot Patching: Unit', () => {
 			expect(mockRNDBSetActiveBundle).toHaveBeenCalledWith(null);
 		});
 
-		it('should not reset to default app bundle if active bundle is null', async () => {
+		it('should set active bundle to null if there are no more existing bundles', async () => {
 			const options = {
 				url: 'https://site.com',
-				appVersion: '1.0.0'
+				appVersion: '1.0.2'
 			};
 			jest.mock('axios', () => ({
 				get: jest.fn(() => ({
@@ -186,13 +186,13 @@ describe('React Native Hot Patching: Unit', () => {
 
 			await RNHotPatching.init(options);
 
-			expect(mockRNDBSetActiveBundle).not.toHaveBeenCalled();
+			expect(mockRNDBSetActiveBundle).toHaveBeenCalledWith(null);
 		});
 
-		it('should not reset to default app bundle if bundle version is greater than package.json version', async () => {
+		it('should not set active bundle to null if at least 1 active bundle exists', async () => {
 			const options = {
 				url: 'https://site.com',
-				appVersion: '1.0.0'
+				appVersion: '1.0.1'
 			};
 			jest.mock('axios', () => ({
 				get: jest.fn(() => ({
@@ -205,7 +205,7 @@ describe('React Native Hot Patching: Unit', () => {
 			const mockRNDBSetActiveBundle = jest.fn();
 			jest.mock('react-native-dynamic-bundle', () => ({
 				getActiveBundle: () => '1.0.1',
-				getBundles: () => ({}),
+				getBundles: () => ({'1.0.1': 'bundles/1.0.1/android.bundle'}),
 				registerBundle: () => {},
 				setActiveBundle: mockRNDBSetActiveBundle
 			}));

@@ -64,13 +64,11 @@ async function init(options = {}) {
 				setActiveBundle(resp.data.version);
 			}
 		}
-		// if app was updated from the store and bundle exists then reset bundle to default
-		const bundleVersion = await getActiveBundle();
-		if(bundleVersion && semver.gte(options.appVersion, bundleVersion)) {
-			setActiveBundle(null);
-		}
 		// remove bundles that are not used anymore
 		await removeStaleBundles(options.appVersion);
+		// if there are no more existing bundles then set active bundle to default (this may happen on next app store update after hotpatched version)
+		const bundles = await getBundles();
+		if(Object.keys(bundles).length === 0) setActiveBundle(null);
 	} catch(err) {
 		console.log('Error on RNHotPatching.init()');
 		console.log(err);

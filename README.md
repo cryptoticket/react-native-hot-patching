@@ -43,14 +43,10 @@ If current app version (from package.json) is `1.0.0` and there is an active bun
 - bundle is NOT downloaded because current app version `1.0.0` < minimum required version `1.0.1` from `apply_from_version` field
 
 ## Case 3
-If current app version is `1.0.1`(updated via hot patching, "real" version in package.json is `1.0.0`) and app is updated to version `1.0.1` via app store then:
-- active bundle is set to `null`
-- when user opens app the next time then version `1.0.1` from the app store will be opened
-
-## Case 4
-If current app version is `1.0.2`(from package.json) and there is a bundle with version `1.0.1` still saved then:
-- bundle with version `1.0.1` is unregistered and deleted physically
-
+If current app version is `1.0.1`(updated via hot patching) and app is updated to version `1.0.2` via app store then:
+- hotpatched version `1.0.1` is deleted from the device
+- active bundle is set to `null` (which tells the plugin to use version from the app store)
+- when user opens app the next time then version `1.0.2` from the app store will be opened
 
 # Methods
 
