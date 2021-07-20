@@ -27,7 +27,7 @@
   "homepage": "https://github.com/cryptoticket/react-native-hot-patching#readme",
   "peerDependencies": {
     "react": "16.9.0",
-    "react-native": "0.61.5",
+    "react-native": "0.62.3",
     "react-native-dynamic-bundle": "git+https://git@github.com/mauritsd/react-native-dynamic-bundle",
     "react-native-fs": "^2.16.6",
     "react-native-zip-archive": "^5.0.2"
@@ -48,7 +48,7 @@
     "jest": "^25.1.0",
     "metro-react-native-babel-preset": "^0.58.0",
     "react": "16.9.0",
-    "react-native": "0.61.5",
+    "react-native": "0.62.3",
     "react-native-dynamic-bundle": "git+https://git@github.com/mauritsd/react-native-dynamic-bundle",
     "react-native-fs": "^2.16.6",
     "react-native-zip-archive": "^5.0.2"
